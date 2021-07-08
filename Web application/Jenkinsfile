@@ -1,4 +1,3 @@
-//Test6
 Boolean SONNARQUBE_CHECK = false
 Boolean GITLEAKS_CHECK = false
 Boolean TRIVY_CHECK = false
