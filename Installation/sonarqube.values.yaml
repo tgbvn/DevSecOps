@@ -1,0 +1,44 @@
+namespace: devsecops
+name: sonarqube-server
+
+deployment:
+  image: "sonarqube:7.9.4-community"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 9000
+      name: sonarqube-web
+  restartPolicy: Always
+  volumeMounts:
+    - mountPath: /opt/sonarqube/conf
+      name: sonarqube-config
+    - mountPath: /opt/sonarqube/data
+      name: sonarqube-data  
+  volumeClaim:
+    - name: sonarqube-config
+      claimName: pvc-sonarqube-config
+    - name: sonarqube-data
+      claimName: pvc-sonarqube-data
+
+persistentVolumeClaim:
+  - name: pvc-sonarqube-config
+    namespace: devsecops
+    storageClassName: sonarqube-config
+    accessModes: ReadWriteMany
+    storage: 1Gi
+  - name: pvc-sonarqube-data
+    namespace: devsecops
+    storageClassName: sonarqube-data
+    accessModes: ReadWriteMany
+    storage: 3Gi
+
+service:
+  - name: sonarqube-web
+    namespace: devsecops
+    app: sonarqube-server
+    type: NodePort
+    ports:
+      - port: 9000
+        targetPort: 9000
+        nodePort: 30090

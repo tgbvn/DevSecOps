@@ -1,0 +1,27 @@
+namespace: devsecops
+name: dashboard-frontend
+
+deployment:
+  image: "ttv2412/management_web_fe"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 80
+      name: web
+  env:
+    - name: API_URL
+      value: "'http://10.0.0.20:30300'"
+    - name: SONAR_URL
+      value: "'http://10.0.0.20:30090'"
+
+service:
+  - name: dashboard-frontend
+    namespace: devsecops
+    app: dashboard-frontend
+    type: NodePort
+    ports:
+      - port: 80
+        targetPort: 80
+        nodePort: 30800
+

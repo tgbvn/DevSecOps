@@ -1,0 +1,45 @@
+namespace: devsecops
+name: jenkins
+
+deployment:
+  image: "jenkins/jenkins:lts"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 8080
+      name: jenkins-web
+    - containerPort: 50000
+      name: jeknins-slave
+  restartPolicy: Always
+  volumeMounts:
+    - mountPath: /var/jenkins_home
+      name: jenkins-vol
+  volumeClaim:
+    - name: jenkins-vol
+      claimName: pvc-jenkins
+
+
+persistentVolumeClaim:
+  - name: pvc-jenkins
+    namespace: devsecops
+    storageClassName: jenkins-data
+    accessModes: ReadWriteMany
+    storage: 3Gi
+
+service:
+  - name: jenkins-web
+    namespace: devsecops
+    app: jenkins
+    type: NodePort
+    ports:
+      - port: 8080
+        targetPort: 8080
+        nodePort: 30088
+  - name: jenkins-slave
+    namespace: devsecops
+    app: jenkins
+    type: ClusterIP
+    ports:
+      - port: 50000
+        targetPort: 50000

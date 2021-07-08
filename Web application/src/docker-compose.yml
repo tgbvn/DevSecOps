@@ -1,0 +1,26 @@
+version: '3'
+
+services: 
+    nodeapp:
+        build: .
+        env_file: ./.env
+        environment: 
+            - DB_HOST=${DB_HOST}
+            - DB_NAME=${DB_NAME}
+            - DB_PORT=${DB_PORT}
+            - DB_USER=${DB_USER}
+            - DB_PASS=${DB_PASS}
+            - PORT=${PORT}
+        ports: 
+            - ${PORT}:${PORT}
+    database:
+        image: postgres
+        container_name: postgresql
+        environment: 
+            - POSTGRES_PASSWORD=12341234
+        ports: 
+            - 5432:5432
+        volumes: 
+            - postgresql:/var/lib/postgresql/data
+volumes:
+ postgresql:

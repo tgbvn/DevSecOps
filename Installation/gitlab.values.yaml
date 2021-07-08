@@ -1,0 +1,63 @@
+namespace: devsecops
+name: gitlab
+
+deployment:
+  image: "gitlab/gitlab-ce"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 80
+      name: gitlab-web
+    - containerPort: 22
+      name: gitlab-ssh
+  restartPolicy: Always
+  volumeMounts:
+    - mountPath: /etc/gitlab
+      name: gitlab-config
+    - mountPath: /var/log/gitlab
+      name: gitlab-logs
+    - mountPath: /var/opt/gitlab
+      name: gitlab-data
+  volumeClaim:
+    - name: gitlab-config
+      claimName: pvc-gitlab-config
+    - name: gitlab-logs
+      claimName: pvc-gitlab-logs
+    - name: gitlab-data
+      claimName: pvc-gitlab-data
+
+persistentVolumeClaim:
+  - name: pvc-gitlab-config
+    namespace: devsecops
+    storageClassName: gitlab-config
+    accessModes: ReadWriteMany
+    storage: 1Gi
+  - name: pvc-gitlab-logs
+    namespace: devsecops
+    storageClassName: gitlab-logs
+    accessModes: ReadWriteMany
+    storage: 1Gi
+  - name: pvc-gitlab-data
+    namespace: devsecops
+    storageClassName: gitlab-data
+    accessModes: ReadWriteMany
+    storage: 1Gi
+
+service:
+  - name: gitlab-web
+    namespace: devsecops
+    app: gitlab
+    type: NodePort
+    ports:
+      - port: 80
+        targetPort: 80
+        nodePort: 30080
+  - name: gitlab-ssh
+    namespace: devsecops
+    app: gitlab
+    type: NodePort
+    ports:
+      - port: 22
+        targetPort: 22
+        nodePort: 30022

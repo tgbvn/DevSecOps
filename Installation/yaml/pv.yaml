@@ -1,0 +1,139 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-jenkins
+spec:
+  storageClassName: jenkins-data
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/jenkins"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-sonarqube-config
+spec:
+  storageClassName: sonarqube-config
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/sonarqube/config"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-sonarqube-data 
+spec:
+  storageClassName: sonarqube-data 
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/sonarqube/data"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-nexus
+spec:
+  storageClassName: nexus-data
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/nexus-data"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-gitlab-config
+spec:
+  storageClassName: gitlab-config
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/gitlab/gitlab-config"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-gitlab-logs
+spec:
+  storageClassName: gitlab-logs
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/gitlab/gitlab-logs"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-gitlab-data
+spec:
+  storageClassName: gitlab-data
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/gitlab/gitlab-data"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-reports
+spec:
+  storageClassName: reports
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/reports"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-trivy-cache
+spec:
+  storageClassName: trivy-cache
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/trivy-cache"
+    server: "10.0.0.20"
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: pv-zap-wrk
+spec:
+  storageClassName: zap-wrk
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: "/home/master/data/zap-wrk"
+    server: "10.0.0.20"

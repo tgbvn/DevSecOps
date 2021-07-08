@@ -1,0 +1,41 @@
+namespace: devsecops
+name: dashboard-backend
+
+deployment:
+  image: "ttv2412/management_web_be"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 3000
+      name: backend
+  env:
+    - name: DB_HOST
+      value: "'10.0.0.20'"
+    - name: DB_PORT
+      value: "'5432'"
+    - name: DB_NAME
+      value: report
+    - name: DB_USER
+      value: root
+    - name: DB_PASS
+      value: 'Thaovy24'
+    - name: PORT
+      value: "'3000'"
+  volumeMounts:
+    - mountPath: /home/reports
+      name: reports-vol
+  volumeClaim:
+    - name: reports-vol
+      claimName: pvc-reports
+
+service:
+  - name: dashboard-backend
+    namespace: devsecops
+    app: dashboard-backend
+    type: NodePort
+    ports:
+      - port: 3000
+        targetPort: 3000
+        nodePort: 30300
+

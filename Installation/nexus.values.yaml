@@ -1,0 +1,46 @@
+namespace: devsecops
+name: nexus
+
+deployment:
+  image: "sonatype/nexus3"
+  replicas: 1
+
+container:
+  ports:
+    - containerPort: 8081
+      name: nexus-web
+    - containerPort: 8083
+      name: nexus-registry
+  restartPolicy: Always
+  volumeMounts:
+    - mountPath: /nexus-data 
+      name: nexus-data 
+  volumeClaim:
+    - name: nexus-data 
+      claimName: pvc-nexus-data 
+
+persistentVolumeClaim:
+  - name: pvc-nexus-data 
+    namespace: devsecops
+    storageClassName: nexus-data 
+    accessModes: ReadWriteMany
+    storage: 5Gi
+
+service:
+  - name: nexus
+    namespace: devsecops
+    app: nexus
+    type: NodePort
+    ports:
+      - port: 8081
+        targetPort: 8081
+        nodePort: 30081
+  - name: nexus-registry
+    namespace: devsecops
+    app: nexus
+    type: NodePort
+    ports:
+      - port: 8083
+        targetPort: 8083
+        nodePort: 30083
+

@@ -1,0 +1,188 @@
+body{
+    font-family: 'Roboto', sans-serif;
+    box-sizing: border-box;
+}
+
+/* HEADER */
+
+header .navbar{
+    padding: 10px 20px;
+    height: 9vh;
+}
+
+header .navbar .navbar-brand{
+    font-size: 30px;
+    font-weight: 500;
+}
+
+header .navbar .navbar-brand span{
+    color: #ae75c3;
+}
+
+header .navbar .navbar-collapse{
+    justify-content: flex-end;
+}
+
+header .navbar .navbar-collapse .navbar-nav .nav-item{
+    padding: 0 10px;
+    border-right: 1px solid #ae75c3;
+}
+
+header .navbar .navbar-collapse .navbar-nav .nav-item:last-child{
+    border-right: none;
+}
+
+.primary{
+    border-top: 1vh solid #ae75c3;
+    opacity: 1;
+    margin: 0;
+    border-bottom: none;
+}
+
+/* CAROUSEL */
+.carousel{
+    height: 90vh;
+    position: relative;
+}
+
+.carousel .carousel-inner{
+    height: 100%;
+}
+
+.carousel .carousel-inner .carousel-item{
+    height: 100%;
+}
+
+.carousel .carousel-inner .carousel-item img{
+    height: 600px;
+    background-position: center;
+    background-size: cover;
+    height: 100%;
+}
+
+.carousel .formSearch{
+    width: 40%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+/* SEARCH RESULTS */
+.content{
+    width: 40%;
+    margin: 50px auto;
+}
+.formSearch{
+    background: #ebf0f2;
+    padding: 16px;
+}
+
+.formSearch input{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding: 0.4em;
+    border: 1px solid #e6e6e6;
+    color: #333332;
+}
+
+.formSearch input:focus{
+    border: 1px solid #ae75c3;
+    outline: 1px solid #ae75c3;
+    box-shadow: none;
+}
+
+.formSearch button{
+    color: #fff;
+    background-color: #ae75c3;
+    border-radius: 25px;
+    margin-left: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight: 500;
+    transition: all .5s;
+}
+
+.formSearch button:hover{
+    background-color: #9160a5;
+    color: #fff;
+}
+
+hr{
+    border: 1px solid #aeadad;
+}
+
+.infoSearch{
+    margin-top: 32px;
+    color: #ae75c3;
+    font-size: 24px;
+    text-align: center;
+}
+
+.infoSearch .masp{
+    color: #ae75c3;
+    font-weight: 500;
+}
+
+.infoSearch .noresult{
+    color: #ae75c3;
+    font-weight: 500;
+}
+
+.infoSearch .error{
+    color: #000;
+    font-size: 20px;
+}
+
+.infoSearch .card{
+    width: 60%;
+    margin: 20px auto;
+    padding: 30px 0;
+    text-align: center;
+    border: none;
+    color: #000;
+    transition: all 0.5s;
+    cursor: pointer;
+}
+
+.infoSearch .card:hover .btnDetail{
+    display: block;
+}
+
+.infoSearch .card:hover .card-body{
+    display: none;
+}
+
+.infoSearch .card img{
+    width: 250px;
+    height: 250px;
+    margin: auto;
+}
+
+.infoSearch .card .card-body{
+    padding-bottom: 0;
+}
+
+.infoSearch .card p{
+    font-size: 18px;
+}
+
+.infoSearch .card .btnDetail{
+    display: none;
+    margin-top: 15px;
+}
+
+.infoSearch .card .btnDetail button{
+    background-color: #ae75c3;
+    color: #fff;
+    border: none;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 25px;
+}
+
+.infoSearch .card .btnDetail button:hover{
+    background-color: #9160a5;
+}
+
+
