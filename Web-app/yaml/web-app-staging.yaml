@@ -18,6 +18,7 @@ spec:
       containers:
       - name: web-app
         image: registry.local/web-app-staging
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         resources:
