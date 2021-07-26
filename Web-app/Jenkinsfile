@@ -1,9 +1,9 @@
-Boolean SONNARQUBE_CHECK = false
-Boolean GITLEAKS_CHECK = false
-Boolean TRIVY_CHECK = false
-Boolean ZAP_BASELINE_CHECK = false
-Boolean ZAP_QUICKSCAN_CHECK = false
+import groovy.transform.Field
+
+@Field 
+TOOL_FAILED = [false, false, false, false, false]
 COMMIT_ID = ''
+COMMIT_REPO = ''
 SOURCE = 'git-source'
 DOCKER_IMAGE = '10.0.0.20:30083/web-app'
 WEB_MANAGER_ADDR = 'http://dashboard-backend:3000/api'
@@ -12,22 +12,19 @@ WEB_MANAGER_ADDR = 'http://dashboard-backend:3000/api'
 //Initialize scanning results of the commit-id
 def webHookCheck(String check){
     sh returnStatus: true, script: """
-    curl '${WEB_MANAGER_ADDR}/commit?id=${COMMIT_ID}&check=${check}'
+    curl '${WEB_MANAGER_ADDR}/commit?id=${COMMIT_ID}&repo=${COMMIT_REPO}&check=${check}'
     """
 }
 
-//Update status of scanning result and determine to abort the pipeline
-def webHookScan(String tool, int ret, Boolean check ){
+//Update status of scanning result
+def webHookScan(String tool, int ret, int index){
     String status
     if (ret != 0){
         status = 'fail'
+        TOOL_FAILED[index] = true
         sh returnStatus: true, script: """
         curl '${WEB_MANAGER_ADDR}/commit?id=${COMMIT_ID}&tool=${tool}&status=${status}'
         """
-        if (check){
-            webHookCheck('end')
-            error "Pipeline aborted due to a failure: ${ret}"
-        }
     } else {
         status = 'pass'
     }
@@ -36,10 +33,10 @@ def webHookScan(String tool, int ret, Boolean check ){
     """   
 }
 
-
 node ('master') {
     stage('Git clone and setup'){
         COMMIT_ID = env.gitlabAfter
+        COMMIT_REPO = env.gitlabSourceRepoName
         git branch: 'develop', credentialsId: 'gitlab-root', url: 'http://gitlab-web/devsecops/a-web-application.git'
         stash includes: '**', name: "${SOURCE}"
         webHookCheck('start')
@@ -75,9 +72,9 @@ podTemplate(name: 'sonar-scanner-pod', label: 'sonarqube', namespace: 'devsecops
     }
     node('master'){
         if (ret.status == 'OK'){
-            webHookScan('sonarqube', 0, SONNARQUBE_CHECK)
+            webHookScan('sonarqube', 0, 0)
         }else{
-            webHookScan('sonarqube', 1, SONNARQUBE_CHECK)
+            webHookScan('sonarqube', 1, 0)
         }
     }
 }
@@ -100,7 +97,7 @@ podTemplate(name: 'gitleaks-pod', label: 'gitleaks', namespace: 'devsecops', con
         }
     }
     node('master'){
-        webHookScan('gitleaks', ret, GITLEAKS_CHECK)
+        webHookScan('gitleaks', ret, 1)
     }
 }
 
@@ -123,7 +120,7 @@ podTemplate(name: 'trivy-pod', label: 'trivy', namespace: 'devsecops', container
         }
     }
     node('master'){
-        webHookScan('trivy', ret, TRIVY_CHECK)
+        webHookScan('trivy', ret, 2)
     }
 }
 
@@ -170,6 +167,27 @@ podTemplate(name: 'kubectl-pod', label: 'kubectl', namespace: 'devsecops', conta
     }
 }
 
+podTemplate(name: 'pytest-pod', label: 'pytest', namespace: 'devsecops', containers: [
+    containerTemplate(name: 'pytest', image: 'qnib/pytest', command: 'cat', ttyEnabled: true),
+    ])
+{
+    node('pytest') {
+        //Staging tests
+        stage('Staging tests') {
+            container('pytest') {
+                unstash "${SOURCE}"
+                ret = sh returnStatus: true, script: "pytest ./tests/test_app.py"
+                if (ret != 0){
+                    mail to: 'tgbaovn@gmail.com', subject: "[Jenkins] Status of pipeline: ${currentBuild.fullDisplayName}", 
+                        body: "[FAILED] Pipeline aborted due to a test failed in pytest # Project: ${COMMIT_REPO} # Commit ID: ${COMMIT_ID} "
+                    webHookCheck('end')
+                    error "Pipeline aborted due to a test failed in pytest"
+                }
+            }
+        }
+    }
+}
+
 podTemplate(name: 'zap-pod', label: 'zap', namespace: 'devsecops', containers: [
     containerTemplate(name: 'zap', image: 'owasp/zap2docker-stable', command: 'cat', ttyEnabled: true),
     ],
@@ -198,16 +216,21 @@ podTemplate(name: 'zap-pod', label: 'zap', namespace: 'devsecops', containers: [
         }
     }
     node('master'){
-        webHookScan('zap_baseline', baseline, ZAP_BASELINE_CHECK)
-        webHookScan('zap_quickscan', quickscan, ZAP_QUICKSCAN_CHECK)
+        webHookScan('zap_baseline', baseline, 3)
+        webHookScan('zap_quickscan', quickscan, 4)
         webHookCheck('end')
     }    
 }
 
 node('master'){
-    stage('Go for production'){
-        timeout(time: 5, unit: 'MINUTES') {
-            input 'Deploy the web-app to the production?'
+    //Security requirements
+    stage('Security gate'){
+        for(int i = 0;i < 5;i++) {
+            if (TOOL_FAILED[i]){
+                mail to: 'tgbaovn@gmail.com', subject: "Status of pipeline: ${currentBuild.fullDisplayName}", 
+                    body: "[FAILED] Pipeline aborted due to a failure in a security tool # Project: ${COMMIT_REPO} # Commit ID: ${COMMIT_ID}"
+                error "Pipeline aborted due to a failure in a security tool"
+            }
         }
     }
 }
@@ -249,7 +272,10 @@ podTemplate(name: 'kubectl-pod', label: 'kubectl', namespace: 'devsecops', conta
             container('kubectl') {
                 unstash "${SOURCE}"
                 sh 'kubectl apply -f ./yaml/web-app-production.yaml'
+                mail to: 'tgbaovn@gmail.com', subject: "Status of pipeline: ${currentBuild.fullDisplayName}", 
+                    body: "[DEPLOYED] # Project: ${COMMIT_REPO} # Commit ID: ${COMMIT_ID}"
             }
         }
     }
 }
+
